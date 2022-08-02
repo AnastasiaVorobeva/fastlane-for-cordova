@@ -1,0 +1,39 @@
+platform :ios do
+    desc "Deploy ios app on the appstore"
+  
+    lane :create do
+      produce(app_name: "MyApp")
+    end
+
+    lane :beta do
+        # get_certificates           # invokes cert
+        # get_provisioning_profile   # invokes sigh
+        sync_code_signing(type: "appstore")    
+        build_app(scheme: "MyApp")
+        upload_to_testflight
+        slack(message: "iOS-сборка готова к бета-тестированию. Ожидает вас в TestFlight")
+    end
+  
+    lane :deploy do
+      match(
+        type: "appstore",
+        git_url: "https://bitbucket.org/Almouro/certificates" # REPLACE WITH YOUR PRIVATE REPO FOR MATCH
+      )
+      cordova(platform: 'ios') # Using the Cordova Fastlane Plugin
+      appstore(ipa: ENV['CORDOVA_IOS_RELEASE_BUILD_PATH'])
+    end
+  end
+  
+  platform :android do
+    desc "Deploy android app on play store"
+  
+    lane :deploy do
+      cordova(
+        platform: 'android',
+        keystore_path: './prod.keystore', # REPLACE THESE LINES WITH YOUR KEYSTORE INFORMATION
+        keystore_alias: 'prod',
+        keystore_password: 'password'
+      ) # Cordova Fastlane Plugin
+      supply(apk: ENV['CORDOVA_ANDROID_RELEASE_BUILD_PATH'])
+    end
+  end
