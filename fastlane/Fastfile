@@ -4,7 +4,11 @@ platform :ios do
     lane :beta_yclients do
       cert # Установка сертификатов
       sigh # Установка provision profiles
-      increment_version_number # Увеличение номера версии
+      increment_version_number
+      (
+      bump_type: "minor" 
+      bump_type: "patch"
+      ) # Увеличение номера версии
       # Зайти в Build Settings/Versioning
       # Выставить Versioning System в Apple Generic и Current Project Version в 1
       gym # Сборка билда 
