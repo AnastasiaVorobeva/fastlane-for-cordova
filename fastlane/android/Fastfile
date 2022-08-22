@@ -1,0 +1,37 @@
+platform :android do
+  desc "Deploy android YCLIENTS app on play store"
+  
+  lane :deploy yclients do
+    cordova(
+      platform: 'android',
+      keystore_path: './prod.keystore', # REPLACE THESE LINES WITH YOUR KEYSTORE INFORMATION
+      keystore_alias: 'prod', #gitignore
+      keystore_password: 'password' #gitignore
+    ) # Cordova Fastlane Plugin
+    supply(apk: ENV['CORDOVA_ANDROID_RELEASE_BUILD_PATH'])
+    end
+  end
+
+  lane :huawei_appgallery_connect(
+    client_id: "<CLIENT_ID>",
+    client_secret: "<CLIENT_SECRET>",
+    app_id: "<APP_ID>", #app id
+    apk_path: "<APK_PATH>" #path to the apk/aab file
+    
+    # Optional, Parameter beyond this are optional
+
+    # if you're uploading aab instead of apk, specify is_aab to true and specify path to aab file on apk_path
+    # is_aab: true 
+    
+    submit_for_review: true,
+
+    privacy_policy_url: "https://example.com",
+    changelog_path: "<PATH_TO_CHANGELOG_FILE>",
+
+    # For phase wise release: set these parameters
+    phase_wise_release: true,
+    phase_release_start_time: "2019-12-25T07:05:15+0000",
+    phase_release_end_time: "2019-12-28T07:05:15+0000",
+    phase_release_percent: "10.00",
+    phase_release_description: "<DESCRIPTION>"
+) 

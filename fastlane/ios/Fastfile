@@ -1,0 +1,49 @@
+default_platform :ios
+
+platform :ios do
+
+    before_all do
+        cocoapods
+    end
+
+    desc "Deploy ios YCLIENTS app on the appstore"
+
+    lane :test do
+    end
+    
+
+    lane :beta_yclients do
+        app_store_connect_api_key(
+            key_id: "D383SF739",
+            issuer_id: "6053b7fe-68a8-4acb-89be-165aa6465141",
+            key_filepath: "./AuthKey_D383SF739.p8",
+            duration: 1200, # optional (maximum 1200)
+            in_house: true # optional but may be required if using sigh
+        )
+
+        cert # Установка сертификатов
+        sigh # Установка provision profiles
+        gym # Сборка билда 
+        version = get_version_number_from_git_branch(pattern: 'release-#') 
+        pilot # Upload to testflight
+        (
+            app_version: version
+            team_id: team_id 
+            skip_submission: true, # Skip the distributing action of pilot and only upload the ipa file
+            changelog = File.read("fastlane-for-cordova/fastlane/ios/changelog.txt")
+        )
+        slack(
+            message: "iOS-сборка готова к бета-тестированию. Ожидает вас в TestFlight"
+        )
+    end
+  
+    lane :deploy_yclients do
+      match(
+        type: "appstore",
+        git_url: "https://bitbucket.org/Almouro/certificates" # REPLACE WITH YOUR PRIVATE REPO FOR MATCH
+      )
+      cordova(platform: 'ios') # Using the Cordova Fastlane Plugin
+      appstore(ipa: ENV['CORDOVA_IOS_RELEASE_BUILD_PATH'])
+    end
+  end
+  
